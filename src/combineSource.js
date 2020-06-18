@@ -34,7 +34,6 @@ async function getMergeSubImportMap(allSubImportPath, sourceMap, getImportConten
     let nextAllSubImportPath = [];
     while (search) {
       for (let subImportPath of allSubImportPath) {
-        console.log(subImportPath);
         if (!sourceMap.has(subImportPath)) {
           let content = await getImportContent(subImportPath);
           sourceMap.set(subImportPath, content);
