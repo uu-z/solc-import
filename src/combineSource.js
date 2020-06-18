@@ -1,5 +1,5 @@
-const getImports = require('./getImports');
-const isExistImport = require('./isExistImport');
+const getImports = require("./getImports");
+const isExistImport = require("./isExistImport");
 
 module.exports = combineSource;
 
@@ -11,7 +11,8 @@ async function combineSource(source, getImportContent) {
 
     for (let importPath of allImportPath) {
       let content = await getImportContent(importPath);
-      allSubImportPath = allSubImportPath.concat(getImports(content));
+      allSubImportPath = [...new Set([...allSubImportPath, ...getImports(content)])];
+
       sourceMap.set(importPath, content);
     }
 
@@ -23,7 +24,7 @@ async function combineSource(source, getImportContent) {
     }
     return sources;
   } catch (error) {
-    throw(error);
+    throw error;
   }
 }
 
@@ -33,12 +34,14 @@ async function getMergeSubImportMap(allSubImportPath, sourceMap, getImportConten
     let nextAllSubImportPath = [];
     while (search) {
       for (let subImportPath of allSubImportPath) {
-        if (sourceMap.has(subImportPath)) break;
-        let content = await getImportContent(subImportPath);
-        sourceMap.set(subImportPath, content);
-        if (isExistImport(content)) {
-          let sub2ImportPath = getImports(content);
-          nextAllSubImportPath = nextAllSubImportPath.concat(sub2ImportPath);
+        console.log(subImportPath);
+        if (!sourceMap.has(subImportPath)) {
+          let content = await getImportContent(subImportPath);
+          sourceMap.set(subImportPath, content);
+          if (isExistImport(content)) {
+            let sub2ImportPath = getImports(content);
+            nextAllSubImportPath = nextAllSubImportPath.concat(sub2ImportPath);
+          }
         }
       }
       search = nextAllSubImportPath.length != 0;
